@@ -1,0 +1,637 @@
+<div class="col-md-12 col-lg-12 col-xl-12" style="padding-left:0;">
+    <div class="card" style="width:100%;">
+        <div class="card-header" style="padding:8px 12px 8px 12px;">
+            <div class="input-group">
+                <div class="input-group">
+
+                    <label for="user_id" style="margin-top:8px;float: left">服务器ID：</label>
+                    <input type="text" id="user_id" name="input1-group2" class="form-control"
+                           placeholder="Search" style="width:20%;float: left" [(ngModel)]="serarch_id">
+                    <span class="input-group-btn" style="top:8px;float: left">
+                             <button type="button" class="btn btn-primary" (click)="searchMachine(serarch_id)"><i
+                                     class="fa fa-search"></i></button>
+                    </span>
+                </div>
+                <span class="input-group-btn" style="line-height:1.25;top:4px;padding:0.5rem 0.75rem;">
+                       <button class="btn  btn-danger" type="button"
+                               (click)="getModalTarget(pAddMachineModal)">添加</button>
+                 </span>
+            </div>
+        </div>
+        <div class="card-block" style="height: 450px;">
+
+            <table class="table table-striped text-center ">
+                <thead>
+                <tr>
+                    <th class="ellipsis" style="width:8%;">ID</th>
+                    <th class="ellipsis" style="width:10%;">名称</th>
+                    <th class="ellipsis" style="width:15%;">系统</th>
+                    <th class="ellipsis" style="width:15%;">位置</th>
+                    <th class="ellipsis" style="width:15%;">IP</th>
+                    <th class="ellipsis" style="width:15%;">配置</th>
+                    <th style="width:22%;">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let machine of machine_list | paginate: { itemsPerPage: count, currentPage: page_no, totalItems: total}"
+                    class="row">
+                    <td title='{{machine.id}}' class="ellipsis" style="width:3%;">{{machine.id}}</td>
+                    <td title='{{machine.name}}' class="ellipsis" style="width:5%;">{{machine.name}}</td>
+                    <td title='{{machine.os}}' class="ellipsis" style="width:15%;">{{machine.os}}</td>
+                    <td title='{{machine.location}}' class="ellipsis" style="width:15%;">{{machine.location}}</td>
+                    <td title='内网：{{machine.local_ip}}&#10;外网：{{machine.public_ip}}' class="ellipsis"
+                        style="width:18%;">内网：{{machine.local_ip}}外网：{{machine.public_ip}}
+                    </td>
+                    <td title='CPU：{{machine.cpu}}核&#10;内存：{{machine.memory}}MB&#10;带宽：{{machine.bandwidth}}Mbps'
+                        class="ellipsis" style="width:18%;">CPU：{{machine.cpu}}核&nbsp;内存：{{machine.memory}}MB&nbsp;带宽：{{machine.bandwidth}}Mbps
+                    </td>
+                    <td class="ellipsis" style="width:21%;">
+
+                        <button title="修改" class="btn  btn-info btn-sm" type="button" id="'+{{machine.id}}+'"
+                                (click)="openModal(wMachineModal, machine,'')"><i class="fa fa-edit"></i></button>
+                        <button title="删除" class="btn  btn-danger btn-sm" type="button"
+                                (click)="openModal(dDeleteMachineModal, machine,'')"><i class="fa fa-trash-o"></i>
+                        </button>
+
+                        <button title="分配角色" class="btn btn-primary btn-sm" type="button"
+                                (click)="openModal(iSetMachineModal, machine,'setRole')"><i
+                                class="icon icon-people"></i>
+                        </button>
+
+                        <button title="设置" class="btn btn-success btn-sm" type="button"
+                                (click)="openModal(sSetMachineMasterModal, machine,'setMaster')"><i
+                                class="fa fa-chain rotate"></i>
+                        </button>
+
+                        <!--<button title="设置" class="btn btn-primary btn-sm" type="button"-->
+                        <!--(click)="openModal(iSetMachineModal, machine,'set')"><i class="fa fa-map-pin"></i>-->
+                        <!--</button>-->
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <pagination-controls (pageChange)="getMachineList(machine_id,count,page_no=$event)"></pagination-controls>
+        </div>
+        <div class="card-footer">
+        </div>
+    </div>
+</div>
+
+<!---------------------------------- modal -------------------------------->
+<div bsModal #pAddMachineModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-primary" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(pAddMachineModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">添加服务器</h4>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post" class="form-horizontal" #userForm="ngForm" [formGroup]="machine_info">
+                    <div class="form-group row">
+                        <label class="col-md-2 " style="margin-top:6px;">名称</label>
+                        <div class="col-md-8">
+                            <input class="form-control" [formControl]="machine_info.controls['name']" placeholder=""
+                                   type="text">
+                        </div>
+                    </div>
+                    <div class="form-group row"
+                         *ngIf="machine_info.controls['name'].hasError('required') && (machine_info.controls['name'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small>
+                                <span class="red">名称不能为空</span>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-group row"
+                         *ngIf="machine_info.controls['name'].hasError('required') && (machine_info.controls['name'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small>
+                                <span class="red">服务器名称不能为空</span>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-2 " style="margin-top:6px;">系统</label>
+                        <div class="col-md-8">
+                            <input type="text" [formControl]="machine_info.controls['os']"
+                                   name="input1-group1" class="form-control" placeholder=""></div>
+                    </div>
+                    <div class="form-group row"
+                         *ngIf="machine_info.controls['os'].hasError('required') && (machine_info.controls['os'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small>
+                                <span class="red">操作系统不能为空</span>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-2 " style="margin-top:6px;">位置</label>
+                        <div class="col-md-8">
+                            <input type="text" [formControl]="machine_info.controls['location']"
+                                   name="input1-group1" class="form-control" placeholder=""></div>
+                    </div>
+                    <div class="form-group row"
+                         *ngIf="machine_info.controls['location'].hasError('required') && (machine_info.controls['location'].dirty)">
+                        <div class="offset-lg-2 col-md-8">
+                            <small>
+                                <span class="red">所在位置不能为空</span>
+                            </small>
+
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-2 " style="margin-top:6px;">内网IP</label>
+                        <div class="col-md-10">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <input type="text" [formControl]="machine_info.controls['local_ip']"
+                                           name="input1-group1" class="form-control" placeholder="">
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="row">
+                                        <label class="col-md-3" style="margin-top:6px;">外网IP</label>
+                                        <div class="col-md-7">
+                                            <input type="text" [formControl]="machine_info.controls['public_ip']"
+                                                   name="input1-group1" class="form-control" placeholder="">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="form-group row"
+                         *ngIf="machine_info.controls['local_ip'].hasError('required') && (machine_info.controls['local_ip'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small>
+                                <span class="red">局域网IP不能为空</span>
+                            </small>
+
+                        </div>
+                    </div>
+                    <div class="form-group row"
+                         *ngIf="machine_info.controls['public_ip'].hasError('required') && (machine_info.controls['public_ip'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small>
+                                <span class="red">公网IP不能为空</span>
+                            </small>
+
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-md-2" style="margin-top:6px;">CPU(核)</label>
+                        <div class="col-md-10">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="row">
+                                        <div class="col-md-10">
+                                            <input type="number" [formControl]="machine_info.controls['cpu']"
+                                                   name="input1-group1" class="form-control" placeholder="">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-9" style="padding:0;">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="row">
+                                                <label class="col-md-5"
+                                                       style="padding:0;margin-top:6px;">带宽(Mbps)</label>
+                                                <div class="col-md-6">
+                                                    <input type="number"
+                                                           [formControl]="machine_info.controls['bandwidth']"
+                                                           name="input1-group1" class="form-control" placeholder="">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="row">
+                                                <label class="col-md-5" style="padding:0;margin-top:6px;">内存(Mb)</label>
+                                                <div class="col-md-6">
+                                                    <input type="number" [formControl]="machine_info.controls['memory']"
+                                                           name="input1-group1" class="form-control" placeholder="">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="form-group row"
+                         *ngIf="machine_info.controls['cpu'].hasError('required') && (machine_info.controls['cpu'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small>
+                                <span class="red">核数不能为空</span>
+                            </small>
+
+                        </div>
+                    </div>
+                    <div class="form-group row"
+                         *ngIf="machine_info.controls['memory'].hasError('required') && (machine_info.controls['memory'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small>
+                                <span class="red">内存容量不能为空</span>
+                            </small>
+
+                        </div>
+                    </div>
+                    <div class="form-group row"
+                         *ngIf="machine_info.controls['bandwidth'].hasError('required') && (machine_info.controls['bandwidth'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small>
+                                <span class="red">带宽不能为空</span>
+                            </small>
+
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-2 form-control-label">描述：</label>
+                        <div class="col-md-8">
+                            <textarea class="form-control" [formControl]="machine_info.controls['desc']"
+                                      name="textarea-input" placeholder="说明文字......（小于256字节）" rows="9" required
+                                      maxlength="256"></textarea>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary" (click)="addMachine()">确定</button>
+
+                <button type="button" class="btn btn-secondary" (click)="closeModal(pAddMachineModal)">取消</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<div bsModal #wMachineModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-warning" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(wMachineModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">修改服务器，id：{{machine_info.controls['id'].value}}</h4>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post" class="form-horizontal" #userForm="ngForm" [formGroup]="machine_info">
+                    <div class="form-group row">
+                        <label class="col-md-2 " style="margin-top:6px;">名称</label>
+                        <div class="col-md-8">
+                            <input class="form-control" [formControl]="machine_info.controls['name']" placeholder=""
+                                   type="text">
+                        </div>
+                    </div>
+                    <div class="form-group row"
+                         *ngIf="machine_info.controls['name'].hasError('required') && (machine_info.controls['name'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small>
+                                <span class="red">名称不能为空</span>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-group row"
+                         *ngIf="machine_info.controls['name'].hasError('required') && (machine_info.controls['name'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small>
+                                <span class="red">服务器名称不能为空</span>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-2 " style="margin-top:6px;">系统</label>
+                        <div class="col-md-8">
+                            <input type="text" [formControl]="machine_info.controls['os']"
+                                   name="input1-group1" class="form-control" placeholder=""></div>
+                    </div>
+                    <div class="form-group row"
+                         *ngIf="machine_info.controls['os'].hasError('required') && (machine_info.controls['os'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small>
+                                <span class="red">操作系统不能为空</span>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-2 " style="margin-top:6px;">位置</label>
+                        <div class="col-md-8">
+                            <input type="text" [formControl]="machine_info.controls['location']"
+                                   name="input1-group1" class="form-control" placeholder=""></div>
+                    </div>
+                    <div class="form-group row"
+                         *ngIf="machine_info.controls['location'].hasError('required') && (machine_info.controls['location'].dirty)">
+                        <div class="offset-lg-2 col-md-8">
+                            <small>
+                                <span class="red">所在位置不能为空</span>
+                            </small>
+
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-2 " style="margin-top:6px;">内网IP</label>
+                        <div class="col-md-10">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <input type="text" [formControl]="machine_info.controls['local_ip']"
+                                           name="input1-group1" class="form-control" placeholder="">
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="row">
+                                        <label class="col-md-3" style="margin-top:6px;">外网IP</label>
+                                        <div class="col-md-7">
+                                            <input type="text" [formControl]="machine_info.controls['public_ip']"
+                                                   name="input1-group1" class="form-control" placeholder="">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="form-group row"
+                         *ngIf="machine_info.controls['local_ip'].hasError('required') && (machine_info.controls['local_ip'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small>
+                                <span class="red">局域网IP不能为空</span>
+                            </small>
+
+                        </div>
+                    </div>
+                    <div class="form-group row"
+                         *ngIf="machine_info.controls['public_ip'].hasError('required') && (machine_info.controls['public_ip'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small>
+                                <span class="red">公网IP不能为空</span>
+                            </small>
+
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-md-2" style="margin-top:6px;">CPU(核)</label>
+                        <div class="col-md-10">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="row">
+                                        <div class="col-md-10">
+                                            <input type="number" [formControl]="machine_info.controls['cpu']"
+                                                   name="input1-group1" class="form-control" placeholder="">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-9" style="padding:0;">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="row">
+                                                <label class="col-md-5"
+                                                       style="padding:0;margin-top:6px;">带宽(Mbps)</label>
+                                                <div class="col-md-6">
+                                                    <input type="number"
+                                                           [formControl]="machine_info.controls['bandwidth']"
+                                                           name="input1-group1" class="form-control" placeholder="">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="row">
+                                                <label class="col-md-5" style="padding:0;margin-top:6px;">内存(Mb)</label>
+                                                <div class="col-md-6">
+                                                    <input type="number" [formControl]="machine_info.controls['memory']"
+                                                           name="input1-group1" class="form-control" placeholder="">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="form-group row"
+                         *ngIf="machine_info.controls['cpu'].hasError('required') && (machine_info.controls['cpu'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small>
+                                <span class="red">核数不能为空</span>
+                            </small>
+
+                        </div>
+                    </div>
+                    <div class="form-group row"
+                         *ngIf="machine_info.controls['memory'].hasError('required') && (machine_info.controls['memory'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small>
+                                <span class="red">内存容量不能为空</span>
+                            </small>
+
+                        </div>
+                    </div>
+                    <div class="form-group row"
+                         *ngIf="machine_info.controls['bandwidth'].hasError('required') && (machine_info.controls['bandwidth'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small>
+                                <span class="red">带宽不能为空</span>
+                            </small>
+
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-2 form-control-label">描述：</label>
+                        <div class="col-md-8">
+                            <textarea class="form-control" [formControl]="machine_info.controls['desc']"
+                                      name="textarea-input" placeholder="说明文字......（小于256字节）" rows="9" required
+                                      maxlength="256"></textarea>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary" (click)="editMachine()">确定</button>
+
+                <button type="button" class="btn btn-secondary" (click)="closeModal(wMachineModal)">取消</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<div bsModal #dDeleteMachineModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-danger" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(dDeleteMachineModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">删除服务器</h4>
+            </div>
+            <div class="modal-body">
+                <h5>确定删除”{{machine_info.controls.id.value}}({{machine_info.controls.name.value}})吗？</h5>
+            </div>
+            <div class="modal-footer">
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary" (click)="removeMachine(machine_info.controls.id.value)">
+                    确定
+                </button>
+                <button type="button" class="btn btn-secondary" (click)="closeModal(dDeleteMachineModal)">取消</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<div bsModal #iSetMachineModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-info" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(iSetMachineModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">分配角色</h4>
+            </div>
+            <div class="modal-body" style="height: 250px;overflow-y: auto">
+                <div class="row">
+                    <!--<div class="col-md-4" style="border-right: 1px solid #cccccc;">-->
+
+                        <!--<Tree [nodes]="domain_tree" [options]="{ isExpandedField: 'name'}">-->
+                            <!--<template #treeNodeTemplate let-node="node" let-index="index">-->
+
+                                <!--<div class="node-content-wrapper" (click)="getRoleListByMachineId(node.data.id)">-->
+                                    <!--{{ node.data.name }}-->
+                                <!--</div>-->
+
+                            <!--</template>-->
+                        <!--</Tree>-->
+
+                    <!--</div>-->
+                    <div class="col-md-12 ">
+
+                        <table class="table table-striped text-center ">
+                            <thead>
+                            <tr>
+                                <th style="width:30%;">x</th>
+                                <th style="width:30%;">角色ID</th>
+                                <th style="width:40%;">角色名称</th>
+
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr *ngFor="let role of role_list" class="row">
+                                <td>
+                                    <input type="checkbox" [(ngModel)]="role.enabled"
+                                           (ngModelChange)="changeFuncs(role.id,role.enabled)"/>
+
+                                </td>
+                                <td>{{role.id}}</td>
+                                <td>{{role.name}}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary" (click)="setMachineRoleFuncs()">保存</button>
+                <button type="button" class="btn btn-secondary" (click)="closeModal(iSetMachineModal)">取消</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+
+<div bsModal #sSetMachineMasterModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-success" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(sSetMachineMasterModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">设置”{{machine_info.controls.name.value}}“的主从关系</h4>
+            </div>
+            <div class="modal-body">
+
+                <div>
+                    <br/>
+                    <br/>
+                    <div class="form-group row">
+                        <div class="offset-lg-2 col-md-6">
+                            <div class="checkbox">
+                                <label for="checkbox1">
+                                    <input type="checkbox" (ngModelChange)="changeMaster(ck.checked)" #ck id="checkbox1"
+                                           name="checkbox1" [(ngModel)]="is_master"/>
+                                    我是主服务器
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group row ">
+                        <div class="offset-lg-2 col-md-8">
+
+                            <label>
+                                主服务器
+                            </label>
+                            <div>
+                                <select [disabled]='changeDisabled' style="padding-top:5px;" class="form-control"
+                                        required name="application_name" [(ngModel)]="master_id" (ngModelChange)="changeServer(master_id)" >
+                                    <!--*ngIf="machine.id != machine_id"-->
+                                         <option  *ngFor="let ss of select_machine_list"  value="{{ss.id}}">
+                                             {{ss.name}}
+                                         </option>
+
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="offset-lg-2 col-md-8">
+
+                            <label>
+                                Access Token
+                            </label>
+                            <div>
+                                <input [disabled]='changeDisabled' [(ngModel)]="svr_access_token " type="text"
+                                       class="form-control" placeholder=""/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary"
+                        (click)="setMachineMaster(machine_info.controls.id.value)">确定
+                </button>
+                <button type="button" class="btn btn-secondary" (click)="closeModal(sSetMachineMasterModal)">取消</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+
+<!--/modal-->

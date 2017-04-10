@@ -1,0 +1,249 @@
+<div class="container-fluid">
+    <div class="row">
+        <br/>
+        <div class="">
+            <div class="card" style="width:100%;">
+                <div class="card-header" style="padding:8px 12px 8px 12px;">
+                    <div class="input-group">
+                         <span class="input-group-btn" style="line-height:1.25;top:4px;padding:0.5rem 0.75rem;">
+                               <button class="btn  btn-danger" type="button"   [disabled]='addAllow'
+                                       (click)="openModal(pAddRoleModal,'','')">添加</button>
+                         </span>
+                    </div>
+                </div>
+                <div class="card-block" style="height: 450px;overflow-y: auto">
+
+                    <table class="table table-striped text-center ">
+                        <thead>
+                        <tr>
+                            <th style="width:30%;">角色ID</th>
+                            <th style="width:40%;">角色名称</th>
+                            <th style="width:30%;">操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr *ngFor="let role of role_list"
+                            class="row">
+                            <td>{{role.id}}</td>
+                            <td>{{role.name}}</td>
+                            <td>
+                                <button class="btn  btn-info" type="button" id="'+{{role.id}}+'"
+                                        (click)="openModal(wEditRoleModal, role)"><i class="fa fa-edit"></i></button>
+                                <button class="btn  btn-danger" type="button"
+                                        (click)="openModal(dDeleteRoleModal, role)"><i class="fa fa-trash-o"></i>
+                                </button>
+                                <button class="btn  btn-primary" type="button"
+                                        (click)="openModal(iSetRoleModal, role,'set')"><i
+                                        class="icon icon-settings"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <!--<pagination-controls (pageChange)="getRoleList('',count,page_no=$event)"></pagination-controls>-->
+                </div>
+                <div class="card-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!---------------------------------- modal -------------------------------->
+<div bsModal #pAddRoleModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-primary" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(pAddRoleModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">添加角色</h4>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post" class="form-horizontal" [formGroup]="role_info">
+                    <div class="form-group row ">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">角色ID
+                                    </span>
+
+                                <input type="text" [formControl]="role_info.controls['id']"
+                                       name="input1-group1" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row" *ngIf="role_info.controls['id'].hasError('required') && (role_info.controls['id'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small >
+                                <span class="red">角色ID不能为空</span>
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">角色名称
+                                    </span>
+                                <input type="text" [formControl]="role_info.controls['name']"
+                                       name="input1-group1" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row" *ngIf="role_info.controls['name'].hasError('required') && (role_info.controls['name'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small >
+                                <span class="red">角色名不能为空</span>
+                            </small>
+                        </div>
+                    </div>
+
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary" (click)="addRole()">确定</button>
+
+                <button type="button" class="btn btn-secondary" (click)="closeModal(pAddRoleModal)">取消</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+
+<div bsModal #wEditRoleModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-warning" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(wEditRoleModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">修改角色信息</h4>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post" class="form-horizontal" [formGroup]="role_info">
+                    <div class="form-group row ">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">角色ID
+                                    </span>
+                                <input type="text" [formControl]="role_info.controls['id']" readonly
+                                       name="input1-group1" class="form-control" placeholder=""
+                                       style="background: #f7f7f7;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">角色名称
+                                    </span>
+                                <input type="text" [formControl]="role_info.controls['name']"
+                                       name=" input1-group1" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row" *ngIf="role_info.controls['name'].hasError('required') && (role_info.controls['name'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small >
+                                <span class="red">角色名不能为空</span>
+                            </small>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary" (click)="editRole()">确定</button>
+
+                <button type="button" class="btn btn-secondary" (click)="closeModal(wEditRoleModal)">取消</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<div bsModal #dDeleteRoleModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-danger" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(dDeleteRoleModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">删除角色</h4>
+            </div>
+            <div class="modal-body">
+                <h5>确定删除”{{role_info.controls.name.value}}({{role_info.controls.id.value}})“吗？</h5>
+            </div>
+            <div class="modal-footer">
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary" (click)="removeRole(role_info.controls.id.value)">确定
+                </button>
+                <button type="button" class="btn btn-secondary" (click)="closeModal(dDeleteRoleModal)">取消</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<div bsModal #iSetRoleModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-info" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(iSetRoleModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">为角色”{{role_info.controls.id.value}}“分配权限</h4>
+            </div>
+            <div class="modal-body" >
+                <div class="row">
+                    <div class="col-md-6" style="height: 250px;overflow-y: auto;border-right: 1px solid #cccccc;">
+                        <Tree [nodes]="module_tree" [options]="{ isExpandedField: 'name'}">>
+
+                            <template #treeNodeTemplate let-node="node" let-index="index">
+
+                                <div class="node-content-wrapper" (click)="getMethodItem(node.data)" >
+                                    {{ node.data.name }}
+                                </div>
+
+                            </template>
+                        </Tree>
+                    </div>
+                    <div class="col-md-6" style="height: 250px;overflow-y: auto">
+                        <div *ngFor="let funcs of funcs_list">
+
+                            <input type="checkbox" id="'+{{funcs.id}}+'" [(ngModel)]="funcs.enabled"
+                                   (ngModelChange)="changeFuncs(funcs.id,funcs.enabled)"/>
+                            <label for="'+{{funcs.id}}+'">{{funcs.name}}    </label>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary" (click)="setRoleFuncs()">保存</button>
+                <button type="button" class="btn btn-secondary" (click)="closeModal(iSetRoleModal)">取消</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<!--modal-->

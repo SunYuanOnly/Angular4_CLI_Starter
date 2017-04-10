@@ -1,0 +1,54 @@
+<div class="container d-table">
+    <div class="d-100vh-va-middle">
+        <div class="row">
+            <div class="col-md-6 offset-md-3">
+                <div class="card-group">
+                    <div class="card ">
+                        <div class="card-header">
+                            <h2 >{{_title}}</h2>
+                        </div>
+
+                        <div class="card-block">
+                            <br/>
+                            <br/>
+                            <form action="" method="post" #form class="form-horizontal"  >
+                                <div class="row">
+                                    <div class=" col-md-8 offset-md-2">
+                                        <div class="input-group mb-2">
+                                        <span class="input-group-addon"><i class="icon-lock"></i></span>
+                                            <input type="password" class="form-control" ngModel placeholder="{{pwdHtml}}" name="pwd" #pwd="ngModel"   [rangeLength]="[6,16]" required>
+                                        </div>
+                                        <div class="form-group mb-2" *ngIf="(pwd.errors?.rangeLength||pwd.errors?.required)&&pwd.dirty ">
+                                                <small>
+                                                    <span class="red">{{pwd_error_message}}</span>
+                                                </small>
+                                        </div>
+                                        <div class="input-group mb-2">
+                                            <span class="input-group-addon"><i class="icon-lock"></i></span>
+                                            <input type="password" class="form-control" ngModel placeholder="{{rpwdHtml}}" name="rpwd" #rpwd="ngModel" [equalTo]="pwd" required>
+                                        </div>
+                                        <div class="form-group mb-2" *ngIf="(rpwd.errors?.equalTo)&&rpwd.dirty">
+                                            <small>
+                                                <span class="red">{{rpwd_error_message}}</span>
+                                            </small>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-8 offset-md-2">
+                                         <button type="button"  [disabled]="pwd.errors?.required||pwd.errors?.rangeLength||rpwd.errors?.equalTo" style="width:100%" class="btn btn-primary px-2 mb-2 " (click)="resetPassword(form,pwd.value)">{{submitText}}</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="card-footer">
+                            <span class="pull-left error red" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

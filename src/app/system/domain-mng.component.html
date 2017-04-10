@@ -1,0 +1,178 @@
+<div class="container-fluid">
+    <div class="row">
+        <br/>
+        <div class="col-md-5 col-lg-5 col-xl-5" style="padding-right:0;">
+            <div class="card" style="width:100%;">
+                <div class="card-header">
+                    <div class="input-group">
+                        <span class="input-group-btn" style="top:4px;">
+                             <button type="button" class="btn btn-primary" ><i
+                                     class="fa fa-search"></i></button>
+                        </span>
+                        <input type="text" id="input1-group2" name="input1-group2" class="form-control"
+                               placeholder="Search" style="width:80%;" [(ngModel)]="searchText" (ngModelChange)="searchDomain(tree)">
+                        &nbsp;&nbsp;
+                        <span class="input-group-btn" style="top:4px;">
+                              <button type="button" class="btn btn-primary" data-toggle="modal"
+                                      (click)="getModalTarget(pAddDomainModal)"><i class="icon-plus icons"></i></button>
+                        </span>
+                        &nbsp;&nbsp;
+                         <span class="input-group-btn" style="top:4px;">
+                              <button class="btn btn-info" type="button" (click)="openModal(wEditDomainModal)"><i
+                                      class="fa fa-edit"></i></button>
+                         </span>
+                        &nbsp;&nbsp;
+                        <span class="input-group-btn" style="top:4px;">
+                              <button class="btn  btn-danger" type="button" (click)="openModal(dDelDomainModal)"><i
+                                      class="fa fa-trash-o"></i></button>
+                        </span>
+                    </div>
+                </div>
+                <div class="card-block" style="">
+                    <div style="margin-bottom:20px;height:390px;overflow: auto">
+                        <Tree [nodes]="domain_tree" #tree [options]="{isExpandedField: 'name'}" >
+
+                            <template #treeNodeTemplate let-node="node" let-index="index">
+
+                                <div class="node-content-wrapper" (click)="getDomainFaq(node)">
+                                    {{ node.data.name }}
+                                </div>
+                                <!--<span (click)="tree.treeModel.filterNodes('运营')">{{ node.data.name }}</span>-->
+                            </template>
+                        </Tree>
+                    </div>
+                </div>
+                <div class="card-footer">
+
+                </div>
+            </div>
+        </div>
+        <div class="col-md-7 col-lg-7 col-xl-7" style="padding-left:0;">
+            <div class="card" style="width:100%;">
+
+                <div class="card-block" style="height: 510px;">
+
+                     <label>域说明：</label>
+                         <textarea [(ngModel)]="domain_desc" class="form-control"  readonly id="textarea-input" name="textarea-input"  rows="9" style="background: #f7f7f7;">
+
+                         </textarea>
+                </div>
+                <div class="card-footer">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--modal-->
+<div bsModal #pAddDomainModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-primary" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(pAddDomainModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">在{{globelTitle}}域下添加子域</h4>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post" class="form-horizontal" [formGroup]="domains_info">
+                    <div class="form-group row">
+                        <label class="col-md-2 ">名称</label>
+                        <div class="col-md-8">
+                            <input class="form-control"  [formControl]="domains_info.controls['name']" placeholder="" type="text">
+                        </div>
+                    </div>
+                    <div class="form-group row" *ngIf="domains_info.controls['name'].hasError('required') && (domains_info.controls['name'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small >
+                                <span class="red">名称不能为空</span>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-2 form-control-label" for="textarea-input">域说明：</label>
+                        <div class="col-md-8">
+                            <textarea class="form-control" [formControl]="domains_info.controls['desc']" name="textarea-input" placeholder="说明文字......（小于256字节）" rows="9" required maxlength="256"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary" (click)="addDomain()">确定</button>
+
+                <button type="button" class="btn btn-secondary" (click)="closeModal(pAddDomainModal)">取消</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<div bsModal #wEditDomainModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-warning" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(wEditDomainModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">修改域{{globelTitle}}</h4>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post" class="form-horizontal" [formGroup]="domains_info">
+                    <div class="form-group row">
+                        <label class="col-md-2 ">名称</label>
+                        <div class="col-md-8">
+                            <input class="form-control"  [formControl]="domains_info.controls['name']" placeholder="" type="text">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-2 form-control-label" for="textarea-input">域说明：</label>
+                        <div class="col-md-8">
+                            <textarea class="form-control" [formControl]="domains_info.controls['desc']" name="textarea-input" placeholder="说明文字......（小于256字节）" rows="9" required maxlength="256"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary" (click)="editDomain()">确定</button>
+
+                <button type="button" class="btn btn-secondary" (click)="closeModal(wEditDomainModal)">取消</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<div bsModal #dDelDomainModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-danger" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(dDelDomainModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">删除域</h4>
+            </div>
+            <div class="modal-body">
+                <h5>确定删除”{{globelTitle}}“吗？</h5>
+            </div>
+            <div class="modal-footer">
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary" (click)="delDomain()">确定</button>
+                <button type="button" class="btn btn-secondary" (click)="closeModal(dDelDomainModal)">取消</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+
+ <!--/.modal-->

@@ -1,0 +1,170 @@
+<div class="col-md-12 col-lg-12 col-xl-12" style="padding-left:0;overflow-y: hidden">
+    <div class="card" style="width:100%;">
+        <div class="card-header" style="padding:8px 12px 8px 12px;">
+            <div class="input-group">
+                         <span class="input-group-btn" style="line-height:1.25;top:4px;padding:0.5rem 0.75rem;">
+                               <button class="btn  btn-danger" type="button"
+                                       (click)="pAddVendorModal.show()">添加</button>
+                         </span>
+            </div>
+        </div>
+        <div class="card-block" style="height: 450px;overflow-y: auto">
+
+            <table class="table table-striped text-center ">
+                <thead>
+                <tr>
+                    <th >厂家ID</th>
+                    <th >厂家名称</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let vendor of vendor_list" class="row">
+                    <td class="">{{vendor.id}}</td>
+                    <td class="">{{vendor.name}}</td>
+                    <td class="">
+                        <button class="btn  btn-info" type="button" id="'+{{vendor.id}}+'"
+                                (click)="openModal(wEditVendorModal, vendor)"><i class="fa fa-edit"></i></button>
+                        <button class="btn  btn-danger" type="button"
+                                (click)="openModal(dDeleteVendorModal, vendor)"><i class="fa fa-trash-o"></i>
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <!--<pagination-controls (pageChange)="p = $event"></pagination-controls>-->
+        </div>
+        <div class="card-footer">
+        </div>
+    </div>
+</div>
+
+
+
+
+<!---------------------------------- modal -------------------------------->
+<div bsModal #pAddVendorModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-primary" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(pAddVendorModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">添加厂家</h4>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post" class="form-horizontal" [formGroup]="vendor_info">
+                    <div class="form-group row ">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">厂家ID
+                                    </span>
+
+                                <input type="text" [formControl]="vendor_info.controls['id']"
+                                       name="input1-group1" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">厂家名称
+                                    </span>
+                                <input type="text" [formControl]="vendor_info.controls['name']"
+                                       name="input1-group1" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary" (click)="addVendor()">确定</button>
+
+                <button type="button" class="btn btn-secondary" (click)="closeModal(pAddVendorModal)">取消</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+
+<div bsModal #wEditVendorModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-warning" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(wEditVendorModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">修改厂家信息</h4>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post" class="form-horizontal" [formGroup]="vendor_info">
+                    <div class="form-group row ">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">厂家ID
+                                    </span>
+                                <input type="text" [formControl]="vendor_info.controls['id']" readonly
+                                       name="input1-group1" class="form-control" placeholder=""
+                                       style="background: #f7f7f7;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">厂家名称
+                                    </span>
+                                <input type="text" [formControl]="vendor_info.controls['name']"
+                                       name=" input1-group1" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary" (click)="editVendor()">确定</button>
+
+                <button type="button" class="btn btn-secondary" (click)="closeModal(wEditVendorModal)">取消</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<div bsModal #dDeleteVendorModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-danger" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(dDeleteVendorModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">删除厂家信息</h4>
+            </div>
+            <div class="modal-body">
+                <h5>确定删除”{{vendor_info.controls.name.value}}({{vendor_info.controls.id.value}})“吗？</h5>
+            </div>
+            <div class="modal-footer">
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary" (click)="removeVendor(vendor_info.controls.id.value)">确定</button>
+                <button type="button" class="btn btn-secondary" (click)="closeModal(dDeleteVendorModal)">取消</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<!----/modal-->

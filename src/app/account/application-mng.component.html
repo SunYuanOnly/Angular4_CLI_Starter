@@ -1,0 +1,616 @@
+<div class="col-md-12 col-lg-12 col-xl-12" style="padding-left:0;overflow-y: hidden">
+    <div class="card" style="width:100%;">
+        <div class="card-header" style="padding:8px 12px 8px 12px;">
+            <div class="input-group">
+                <div class="bbs_title">
+                    <span style="float:left;margin:10px -10px 0 10px;">域：</span>
+                    <a href="javascript:;">
+                        <div class="bbs_nav2">
+                            <ul class="js_newpulldad">
+
+                                <li class="bbs_productSort js_newpulldown">
+                                    <div class="js_hover_proSort " [ngClass]="domain_border" (click)="showDomain()">
+                                        <span class="proSoName" style="overflow: auto">{{domain_name}}</span>
+                                        <!--<input type="text" placeholder=""/>-->
+                                        <i style="display: inline-block;float: right;line-height: 38px;margin-right:5px;"
+                                           class="icon icon-arrow-down"></i>
+                                        &nbsp;&nbsp;
+                                    </div>
+                                    <ul [ngClass]="show_domain" class="js_productSelect" style="overflow: auto">
+                                        <Tree [nodes]="domain_tree" [options]="{ isExpandedField: 'name'}">
+                                            <template #treeNodeTemplate let-node="node" let-index="index">
+
+                                                <div class="node-content-wrapper"
+                                                     (click)="getDomainInfo(node.data.id,node.data.name)">
+                                                    {{ node.data.name }}
+                                                </div>
+
+                                            </template>
+                                        </Tree>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </a>
+                </div>
+                <span class="input-group-btn" style="line-height:1.25;top:4px;padding:0.5rem 0.75rem;">
+                       <button [disabled]='addAllow' class="btn  btn-danger" type="button"
+                               (click)="getModalTarget(pAddApplicationModal)">添加</button>
+                 </span>
+            </div>
+        </div>
+        <div class="card-block" style="height: 450px;overflow-y: auto;">
+
+            <table class="table table-striped text-center ">
+                <thead>
+                <tr>
+                    <th>应用ID</th>
+                    <th>应用名称</th>
+                    <th>APP KEY</th>
+                    <th>APP PASS</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let application of application_list | paginate: { itemsPerPage: count, currentPage: page_no, totalItems: total,id:'server'}"
+                    class="row">
+                    <td >{{application.id}}</td>
+                    <td>{{application.name}}</td>
+                    <td>{{application.app_key}}</td>
+                    <td>{{application.app_pass}}</td>
+
+                    <td>
+                            <span [ngSwitch]="application.status">
+                                      <span *ngSwitchCase="'0'">锁定</span>
+                                      <span *ngSwitchCase="'1'">正常</span>
+                                      <span *ngSwitchCase="'2'">待审核</span>
+                            </span>
+                    </td>
+                    <td>
+                        <button title="修改" class="btn  btn-info btn-sm" type="button" id="'+{{application.id}}+'"
+                                (click)="openModal(wEditApplicationModal, application)"><i class="fa fa-edit"></i>
+                        </button>
+                        <button title="删除" class="btn  btn-danger btn-sm" type="button"
+                                (click)="openModal(dDeleteApplicationModal, application)"><i class="fa fa-trash-o"></i>
+                        </button>
+                        <button title="重置" class="btn  btn-warning btn-sm" type="button"
+                                (click)="openModal(wResetApplicationModal, application)"><i class="fa fa-refresh"></i>
+                        </button>
+
+                        <button title="设置角色" class="btn  btn-primary btn-sm" type="button"
+                                (click)="openModal(iSetAppRoleModal, application,'set')"><i class="icon icon-people"></i>
+                        </button>
+
+                        <button title="设置模版" class="btn  btn-success  btn-sm" type="button"
+                                (click)="setTemplate(iSetAppTempModal, application)"><i class="fa fa-file"></i>
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <pagination-controls (pageChange)="getApplicationList(domain_id,count,page_no=$event)"
+                                 id="server"></pagination-controls>
+        </div>
+        <div class="card-footer">
+        </div>
+    </div>
+</div>
+
+
+<!---------------------------------- modal -------------------------------->
+<div bsModal #pAddApplicationModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-primary" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(pAddApplicationModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">添加应用</h4>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post" class="form-horizontal" [formGroup]="application_info">
+                    <div class="form-group row ">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">应用名称
+                                    </span>
+
+                                <input type="text" [formControl]="application_info.controls['name']"
+                                       name="input1-group1" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row"
+                         *ngIf="application_info.controls['name'].hasError('required') && (application_info.controls['name'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small>
+                                <span class="red">应用名不能为空</span>
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">应用状态
+                                    </span>
+                                <select style="padding-top:5px;" class="form-control selectpicker " required
+                                        name="application_name" [formControl]="application_info.controls['status']">
+                                    <option value="0">
+                                        锁定
+                                    </option>
+                                    <option value="1">
+                                        正常
+                                    </option>
+                                    <option value="2">
+                                        待审核
+                                    </option>
+                                </select>
+                                <!--<input value="'+{{application_info.controls['status']}}+'" type="text" [formControl]="application_info.controls['status']"-->
+                                <!--name=" input1-group1" class="form-control" placeholder="">-->
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary" (click)="addApplication()">确定</button>
+
+                <button type="button" class="btn btn-secondary" (click)="closeModal(pAddApplicationModal)">取消</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<div bsModal #wEditApplicationModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-warning" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(wEditApplicationModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">修改应用信息</h4>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post" class="form-horizontal" [formGroup]="application_info">
+                    <div class="form-group row ">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">应用名称
+                                    </span>
+                                <input type="text" [formControl]="application_info.controls['name']"
+                                       name="input1-group1" class="form-control" placeholder=""
+                                >
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row"
+                         *ngIf="application_info.controls['name'].hasError('required') && (application_info.controls['name'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small>
+                                <span class="red">应用名不能为空</span>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">应用状态
+                                    </span>
+                                <select style="padding-top:5px;" class="form-control selectpicker " required
+                                        name="vendor_name" [formControl]="application_info.controls['status']">
+                                    <option value="0">
+                                        锁定
+                                    </option>
+                                    <option value="1">
+                                        正常
+                                    </option>
+                                    <option value="2">
+                                        待审核
+                                    </option>
+                                </select>
+                                <!--<input value="'+{{application_info.controls['status']}}+'" type="text" [formControl]="application_info.controls['status']"-->
+                                <!--name=" input1-group1" class="form-control" placeholder="">-->
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary" (click)="editApplication()">确定</button>
+
+                <button type="button" class="btn btn-secondary" (click)="closeModal(wEditApplicationModal)">取消</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+
+<div bsModal #dDeleteApplicationModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-danger" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(dDeleteApplicationModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">删除应用</h4>
+            </div>
+            <div class="modal-body">
+                <h5>确定删除”{{application_info.controls.name.value}}吗？</h5>
+            </div>
+            <div class="modal-footer">
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary"
+                        (click)="removeApplication(application_info.controls.id.value)">确定
+                </button>
+                <button type="button" class="btn btn-secondary" (click)="closeModal(dDeleteApplicationModal)">取消
+                </button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<div bsModal #wResetApplicationModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-danger" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(wResetApplicationModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">重置应用</h4>
+            </div>
+            <div class="modal-body">
+
+                <h5>应用名称：{{application_info.controls.name.value}}</h5>
+                <br/>
+                <h6>确定要重置吗？</h6>
+            </div>
+            <div class="modal-footer">
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary"
+                        (click)="resetApplication(application_info.controls.id.value)">确定
+                </button>
+                <button type="button" class="btn btn-secondary" (click)="closeModal(wResetApplicationModal)">取消</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<div bsModal #iSetAppRoleModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-info" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(iSetAppRoleModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">设置默认的角色</h4>
+            </div>
+            <div class="modal-body" style="height: 250px;overflow-y: auto">
+                <div class="row">
+                    <div class="col-md-12">
+
+                        <table class="table table-striped text-center ">
+                            <thead>
+                            <tr>
+                                <th style="width:30%;">x</th>
+                                <th style="width:30%;">角色ID</th>
+                                <th style="width:40%;">角色名称</th>
+
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr *ngFor="let role of role_list" class="row">
+                                <td>
+                                    <input type="checkbox" [(ngModel)]="role.enabled"
+                                           (ngModelChange)="changeFuncs(role.id,role.enabled)"/>
+
+                                </td>
+                                <td>{{role.id}}</td>
+                                <td>{{role.name}}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary" (click)="setAppRoleFuncs()">保存</button>
+                <button type="button" class="btn btn-secondary" (click)="closeModal(iSetAppRoleModal)">取消</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<div bsModal #iSetAppTempModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-primary modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(iSetAppTempModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">为“{{application_info.controls.name.value}}”设置模版</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-3 col-lg-3 col-xl-3" style="padding-right:0;height: 400px;">
+                        <div class="card" style="width:100%;">
+                            <div class="card-header" style="text-align: center">
+                                  <h6 style="line-height:28px;">模版类型</h6>
+                            </div>
+                            <div class="card-block " style="padding:0;height: 320px;overflow:auto">
+                                   <!--<div class="head type_active" *ngFor="let types of template_type_list" (click)="getTemplateList(types.id)">-->
+                                       <!---->
+                                   <!--</div>-->
+                                <ul class="nav nav-pills nav-stacked">
+                                    <li role="presentation"   class="head" *ngFor="let types of template_type_list; let i = index" [ngClass]="{'type_active': currentIndex === i}"   (click)="getTemplateList(i,types.id)">
+
+                                        <span>{{types.name}}</span>
+                                        <span class="fa fa-angle-double-right pull-right" style="margin-right:5px;line-height: 38px;"></span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="card-footer">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-9 col-lg-9 col-xl-9" style="padding-left:0;height: 400px;">
+                    <div class="card" style="width:100%;">
+                        <div class="card-header" style="float: right;padding:8px 12px 8px 12px;">
+                            <div class="input-group">
+                                 <span class="input-group-btn" style="line-height:1.25;top:4px;padding:0.5rem 0.75rem;">
+                                       <button class="btn  btn-danger" type="button" style="float: right"
+                                               [disabled]='allowTempAdd'    (click)="getModalTarget(pAddTempModal)">添加</button>
+                                 </span>
+                            </div>
+                        </div>
+                        <div class="card-block" style="padding:2px;height: 320px;overflow:auto">
+                            <table class="table table-striped text-center ">
+                                <thead>
+                                <tr>
+                                    <th>语言</th>
+                                    <th>模版内容</th>
+                                    <th style="width:15%">操作</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr *ngFor="let templates of templates_list"
+                                    class="row">
+                                    <td >{{templates.lang_id}}</td>
+                                    <td>{{templates.content}}</td>
+                                    <td>
+                                        <button title="修改" class="btn  btn-info btn-sm" type="button" id="'+{{templates.id}}+'"
+                                                (click)="openTempModal(wEditTempModal, templates)"><i class="fa fa-edit"></i>
+                                        </button>
+                                        <button title="删除" class="btn  btn-danger btn-sm" type="button"
+                                                (click)="openTempModal(dDeleteTempModal, templates)"><i class="fa fa-trash-o"></i>
+                                        </button>
+
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                         </div>
+                            <div class="card-footer">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" (click)="closeModal(iSetAppTempModal)">确定</button>
+
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<div bsModal #pAddTempModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-primary" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="pAddTempModal.hide()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">添加模版</h4>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post" class="form-horizontal" [formGroup]="template_info">
+                    <br/>
+                    <div class="form-group row">
+                        <div class="offset-lg-1 col-md-10">
+
+                                <label >语言</label>
+                                <div >
+                                    <select  style="padding-top:5px;" class="form-control" required  name="language" [formControl]="template_info.controls['lang_id']">
+                                        <option  value="zh_cn">
+                                            简体中文
+                                        </option>
+                                        <option  value="en">
+                                            英文
+                                        </option>
+                                        <option  value="zh_tw">
+                                            繁体中文
+                                        </option>
+                                    </select>
+
+                                </div>
+                        </div>
+                    </div>
+                    <div class="form-group row" *ngIf="template_info.controls['lang_id'].hasError('required') && (template_info.controls['lang_id'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small >
+                                <span class="red">语言类型不能为空</span>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="offset-lg-1 col-md-10">
+                            <label>
+                                模版内容
+                            </label>
+                            <div>
+                                <textarea class="form-control" [formControl]="template_info.controls['content']"  name="textarea-input" placeholder="模版文本......" rows="9" required ></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row" *ngIf="template_info.controls['content'].hasError('required') && (template_info.controls['content'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small >
+                                <span class="red">模版内容不能为空</span>
+                            </small>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary" (click)="addTemplate()">确定</button>
+
+                <button type="button" class="btn btn-secondary" (click)="pAddTempModal.hide()">取消</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<div bsModal #wEditTempModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-warning" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeTempModal(wEditTempModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">修改模版信息</h4>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post" class="form-horizontal" [formGroup]="template_info">
+                    <br/>
+                    <div class="form-group row">
+                        <div class="offset-lg-1 col-md-10">
+
+                            <label >语言</label>
+                            <div >
+                                <select  style="padding-top:5px;" class="form-control" required  name="language" [formControl]="template_info.controls['lang_id']">
+                                    <option  value="zh_cn">
+                                        简体中文
+                                    </option>
+                                    <option  value="en">
+                                        英文
+                                    </option>
+                                    <option  value="zh_tw">
+                                        繁体中文
+                                    </option>
+                                </select>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row" *ngIf="template_info.controls['lang_id'].hasError('required') && (template_info.controls['lang_id'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small >
+                                <span class="red">语言类型不能为空</span>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="offset-lg-1 col-md-10">
+                            <label>
+                                模版内容
+                            </label>
+                            <div>
+                                <textarea class="form-control" [formControl]="template_info.controls['content']"  name="textarea-input" placeholder="模版文本......" rows="9" required ></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row" *ngIf="template_info.controls['content'].hasError('required') && (template_info.controls['content'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small >
+                                <span class="red">模版内容不能为空</span>
+                            </small>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary" (click)="editTemplate()">确定</button>
+
+                <button type="button" class="btn btn-secondary" (click)="closeTempModal(wEditTempModal)">取消</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<div bsModal #dDeleteTempModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-danger" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeTempModal(dDeleteTempModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">删除应用</h4>
+            </div>
+            <div class="modal-body">
+                <h5>确定删除语言为{{template_info.controls.lang_id.value}}模版吗？</h5>
+            </div>
+            <div class="modal-footer">
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary"
+                        (click)="removeTemplate(template_info.controls.lang_id.value)">确定
+                </button>
+                <button type="button" class="btn btn-secondary" (click)="closeTempModal(dDeleteTempModal)">取消
+                </button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<!--/modal-->

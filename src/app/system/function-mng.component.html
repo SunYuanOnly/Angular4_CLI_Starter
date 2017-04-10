@@ -1,0 +1,500 @@
+<div class="container-fluid">
+    <div class="row" >
+        <br/>
+        <div class="col-md-5 col-lg-5 col-xl-5" style="padding-right:0;">
+            <div class="card" style="width:100%;">
+                <div class="card-header">
+                    <div class="input-group">
+                        <span class="input-group-btn" style="top:4px;">
+                             <button type="button" class="btn btn-primary"><i
+                                     class="fa fa-search"></i></button>
+                        </span>
+                        <input type="text" id="input1-group2" name="input1-group2" [(ngModel)]="searchText"
+                               (ngModelChange)="searchFun(tree)" class="form-control"
+                               placeholder="Search" style="width:80%;">
+                        &nbsp;&nbsp;
+                        <span class="input-group-btn" style="top:4px;">
+                              <button type="button" class="btn btn-primary" data-toggle="modal"
+                                      (click)="getModalTarget(primaryModal)"><i class="icon-plus icons"></i></button>
+                        </span>
+                        &nbsp;&nbsp;
+                        <span class="input-group-btn" style="top:4px;">
+                              <button class="btn btn-info" type="button" (click)="openModal(warningModal,'')"><i
+                                      class="fa fa-edit"></i></button>
+                         </span>
+                        &nbsp;&nbsp;
+                        <span class="input-group-btn" style="top:4px;">
+                              <button class="btn  btn-danger" type="button" (click)="openModal(dangerModal,'')"><i
+                                      class="fa fa-trash-o"></i></button>
+                        </span>
+                    </div>
+                </div>
+                <div class="card-block" style="height: 450px;">
+                    <div class="card" style="width:100%;">
+                        <div class="card-header" style="padding:8px 12px 8px 12px;">
+                            <h6>{{lang[default_lang].module_list}}
+                            </h6>
+                        </div>
+                        <div class="card-block" style="" (click)="lostFoucs(event)">
+
+                            <div  style="margin-bottom:20px;height: 320px;overflow-y: auto">
+                                <Tree [nodes]="module_tree" #tree  [options]="{ isExpandedField: 'name'}" >
+                                    <template #treeNodeTemplate let-node="node" let-index="index">
+
+                                        <div   class="node-content-wrapper" (click)="getFunItem(node,$event)">
+                                           {{ node.data.name }}
+                                        </div>
+
+                                        <!--<span (click)="tree.treeModel.filterNodes('运营')">{{ node.data.name }}</span>-->
+                                    </template>
+
+                                </Tree>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="card-footer">
+
+                </div>
+            </div>
+        </div>
+        <div class="col-md-7 col-lg-7 col-xl-7" style="padding-left:0;">
+            <div class="card" style="width:100%;">
+                <div class="card-header" style="padding:8px 12px 8px 12px;">
+                    <div class="input-group">
+                         <span class="input-group-btn" style="line-height:1.25;top:4px;padding:0.5rem 0.75rem;">
+                               <button class="btn  btn-danger" type="button"
+                                       (click)="getModalTarget(pAddFunItemModal)">{{lang[default_lang].add}}</button>
+                         </span>
+                    </div>
+                </div>
+                <div class="card-block" style="height: 450px;">
+                    <div class="card" style="width:100%;">
+                        <div class="card-header" style="padding:8px 12px 8px 12px;">
+                            <h6>{{lang[default_lang].funcs_list}}</h6>
+                        </div>
+                        <div class="card-block" style="height: 380px;overflow-y: auto">
+
+                            <table class="table table-striped text-center ">
+
+                                <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>{{lang[default_lang].tag}}</th>
+                                    <th>{{lang[default_lang].name}}</th>
+                                    <th>{{lang[default_lang].type}}</th>
+                                    <th>{{lang[default_lang].auth}}</th>
+                                    <th>{{lang[default_lang].operate}}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr *ngFor="let list of funList" class="row">
+                                    <td>{{list.id}}</td>
+                                    <td>{{list.tag}}</td>
+                                    <td>{{list.name}}</td>
+                                    <td>
+                               <span [ngSwitch]="list.rw">
+                                      <span *ngSwitchCase="'0'">&nbsp;{{lang[default_lang].none}}</span>
+                                      <span *ngSwitchCase="'1'">&nbsp;{{lang[default_lang].write}}</span>
+                                      <span *ngSwitchCase="'2'">&nbsp;{{lang[default_lang].read}}</span>
+                                      <span *ngSwitchCase="'3'">&nbsp;{{lang[default_lang].rw}}</span>
+                               </span>
+                                    </td>
+                                    <td >
+                                <span *ngIf="list.check_auth == true">
+                                    &nbsp;是
+                                </span>
+                                        <span *ngIf="list.check_auth == false">
+                                    &nbsp;否
+                                </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn  btn-info" type="button" id="'+{{list.module_id}}+'"
+                                                (click)="openModal(wEditFunItemModal,list)"><i class="fa fa-edit"></i></button>
+                                        <button class="btn  btn-danger" type="button"
+                                                (click)="openModal(dDeleteFunItemModal,list)"><i class="fa fa-trash-o"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- modal -->
+<div bsModal #primaryModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-primary" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(primaryModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">在{{globelTitle}}下添加功能模块</h4>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post" class="form-horizontal" [formGroup]="modules_info">
+                    <div class="form-group row ">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">{{lang[default_lang].tag}}
+                                    </span>
+
+                                <input type="text" [formControl]="modules_info.controls['tag']" name="input1-group1"
+                                       class="form-control" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row"
+                         *ngIf="modules_info.controls['tag'].hasError('required') && (modules_info.controls['tag'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small>
+                                <span class="red">{{lang[default_lang].tag}}不能为空</span>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">{{lang[default_lang].name}}
+                                    </span>
+                                <input type="text" [formControl]="modules_info.controls['name']" name="input1-group1"
+                                       class="form-control" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row"
+                         *ngIf="modules_info.controls['name'].hasError('required') && (modules_info.controls['name'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small>
+                                <span class="red">{{lang[default_lang].name}}不能为空</span>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="offset-lg-2 col-md-6">
+                            <div class="checkbox">
+                                <label for="checkbox1">
+                                    <input type="checkbox" id="checkbox1" name="checkbox1"
+                                           [formControl]="modules_info.controls['ui_show']">
+                                    显示在界面上
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+                <button type="button" class="btn btn-primary" (click)="addModule()">{{lang[default_lang].confirm}}</button>
+
+                <button type="button" class="btn btn-secondary" (click)="closeModal(primaryModal)">{{lang[default_lang].cancel}}</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<div bsModal #warningModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-warning" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(warningModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">修改{{globelTitle}}模块</h4>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post" class="form-horizontal" [formGroup]="modules_info">
+                    <div class="form-group row ">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">{{lang[default_lang].tag}}
+                                    </span>
+                                <input type="text" [formControl]="modules_info.controls['tag']" readonly
+                                       name="input1-group1" class="form-control" placeholder=""
+                                       style="background: #f7f7f7;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">{{lang[default_lang].name}}
+                                    </span>
+                                <input type="text" [formControl]="modules_info.controls['name']" name=" input1-group1"
+                                       class="form-control" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row"
+                         *ngIf="modules_info.controls['name'].hasError('required') && (modules_info.controls['name'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small>
+                                <span class="red">{{lang[default_lang].name}}不能为空</span>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="offset-lg-2 col-md-6">
+                            <div class="checkbox">
+                                <label for="checkbox2">
+                                    <input type="checkbox" id="checkbox2"
+                                           [formControl]="modules_info.controls['ui_show']"
+                                           name="checkbox1">显示在界面上
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary" (click)="editModule()">{{lang[default_lang].confirm}}</button>
+
+                <button type="button" class="btn btn-secondary" (click)="closeModal(warningModal)">{{lang[default_lang].cancel}}</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<div bsModal #dangerModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-danger" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(dangerModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">删除{{modules_info.controls.name.value}}</h4>
+            </div>
+            <div class="modal-body">
+                <h5>{{lang[default_lang].confirm}}删除{{modules_info.controls.name.value}}吗？</h5>
+            </div>
+            <div class="modal-footer">
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary" (click)="delModule()">{{lang[default_lang].confirm}}</button>
+                <button type="button" class="btn btn-secondary" (click)="closeModal(dangerModal)">{{lang[default_lang].cancel}}</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<div bsModal #pAddFunItemModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-primary" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(pAddFunItemModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">在{{globelTitle}}下添加功能项</h4>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post" class="form-horizontal" [formGroup]="funcs_info">
+                    <div class="form-group row ">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">{{lang[default_lang].tag}}
+                                    </span>
+
+                                <input type="text" [formControl]="funcs_info.controls['tag']"
+                                       name="input1-group1" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row"
+                         *ngIf="funcs_info.controls['name'].hasError('required') && (funcs_info.controls['name'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small>
+                                <span class="red">{{lang[default_lang].tag}}不能为空</span>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">{{lang[default_lang].name}}
+                                    </span>
+                                <input type="text" [formControl]="funcs_info.controls['name']"
+                                       name="input1-group1" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">{{lang[default_lang].Read_write_type}}
+                                    </span>
+                                <select style="padding-top:5px;" class="form-control selectpicker " required
+                                        name="application_name" [formControl]="funcs_info.controls['rw']">
+                                    <option value="0">
+                                        {{lang[default_lang].none}}
+                                    </option>
+                                    <option value="1">
+                                        {{lang[default_lang].write}}
+                                    </option>
+                                    <option value="2">
+                                        {{lang[default_lang].read}}
+                                    </option>
+                                    <option value="3">
+                                        {{lang[default_lang].rw}}
+                                    </option>
+                                </select>
+                                <!--<input value="'+{{application_info.controls['status']}}+'" type="text" [formControl]="application_info.controls['status']"-->
+                                <!--name=" input1-group1" class="form-control" placeholder="">-->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="offset-lg-2 col-md-6">
+                            <div class="checkbox">
+                                <label for="checkbox3">
+                                    <input type="checkbox" name="checkbox1" id="checkbox3"
+                                           [formControl]="funcs_info.controls['check_auth']">{{lang[default_lang].check_auth_str}}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary" (click)="addFunItem()">{{lang[default_lang].confirm}}</button>
+
+                <button type="button" class="btn btn-secondary" (click)="closeModal(pAddFunItemModal)">{{lang[default_lang].cancel}}</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<div bsModal #wEditFunItemModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-warning" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(wEditFunItemModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">修改功能项</h4>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post" class="form-horizontal" [formGroup]="funcs_info">
+                    <div class="form-group row ">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">{{lang[default_lang].tag}}
+                                    </span>
+                                <input type="text" [formControl]="funcs_info.controls['tag']" readonly
+                                       name="input1-group1" class="form-control" placeholder=""
+                                       style="background: #f7f7f7;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">{{lang[default_lang].name}}
+                                    </span>
+                                <input type="text" [formControl]="funcs_info.controls['name']"
+                                       name=" input1-group1" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">{{lang[default_lang].Read_write_type}}
+                                    </span>
+                                <select style="padding-top:5px;" class="form-control selectpicker " required
+                                        name="application_name" [formControl]="funcs_info.controls['rw']">
+                                    <option value="0">
+                                        {{lang[default_lang].none}}
+                                    </option>
+                                    <option value="1">
+                                        {{lang[default_lang].write}}
+                                    </option>
+                                    <option value="2">
+                                        {{lang[default_lang].read}}
+                                    </option>
+                                    <option value="3">
+                                        {{lang[default_lang].rw}}
+                                    </option>
+                                </select>
+                                <!--<input value="'+{{application_info.controls['status']}}+'" type="text" [formControl]="application_info.controls['status']"-->
+                                <!--name=" input1-group1" class="form-control" placeholder="">-->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="offset-lg-2 col-md-6">
+                            <div class="checkbox">
+                                <label for="checkbox4">
+                                    <input type="checkbox" name="checkbox1" id="checkbox4"
+                                           [formControl]="funcs_info.controls['check_auth']">{{lang[default_lang].check_auth_str}}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary" (click)="editFunItem()">{{lang[default_lang].confirm}}</button>
+
+                <button type="button" class="btn btn-secondary" (click)="closeModal(wEditFunItemModal)">{{lang[default_lang].cancel}}</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<div bsModal #dDeleteFunItemModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-danger" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(dDeleteFunItemModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">删除功能项</h4>
+            </div>
+            <div class="modal-body">
+                <h5>{{lang[default_lang].confirm}}删除”{{funcs_info.controls.name.value}}({{funcs_info.controls.tag.value}})“吗？</h5>
+            </div>
+            <div class="modal-footer">
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary" (click)="delFunItem()">{{lang[default_lang].confirm}}</button>
+                <button type="button" class="btn btn-secondary" (click)="closeModal(dDeleteFunItemModal)">{{lang[default_lang].cancel}}</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+
+<!-- /.modal -->

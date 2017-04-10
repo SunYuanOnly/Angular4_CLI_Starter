@@ -1,0 +1,209 @@
+<div class="container-fluid">
+    <div class="row">
+        <br/>
+        <div class="">
+            <div class="card" style="width:100%;">
+                <div class="card-header" style="padding:8px 12px 8px 12px;">
+                    <div class="input-group">
+                         <span class="input-group-btn" style="line-height:1.25;top:4px;padding:0.5rem 0.75rem;">
+                               <button class="btn  btn-danger" type="button"
+                                       (click)="openModal(pAddTypeModal,'')">添加</button>
+                         </span>
+                    </div>
+                </div>
+                <div class="card-block" style="height: 450px;overflow-y: auto">
+
+                    <table class="table table-striped text-center ">
+                        <thead>
+                        <tr>
+                            <th style="width:30%;">类型ID</th>
+                            <th style="width:40%;">类型名称</th>
+                            <th style="width:30%;">操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr *ngFor="let chl_type of chl_type_list"
+                            class="row">
+                            <td>{{chl_type.id}}</td>
+                            <td>{{chl_type.name}}</td>
+                            <td>
+                                <button class="btn  btn-info" type="button" id="'+{{chl_type.id}}+'"
+                                        (click)="openModal(wEditTypeModal, chl_type)"><i class="fa fa-edit"></i></button>
+                                <button class="btn  btn-danger" type="button"
+                                        (click)="openModal(dDeleteTypeModal, chl_type)"><i class="fa fa-trash-o"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <!--<pagination-controls (pageChange)="getRoleList('',count,page_no=$event)"></pagination-controls>-->
+                </div>
+                <div class="card-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!---------------------------------- modal -------------------------------->
+<div bsModal #pAddTypeModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-primary" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(pAddTypeModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">添加通道类型</h4>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post" class="form-horizontal" [formGroup]="chl_type_info">
+                    <div class="form-group row ">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">类型ID
+                                    </span>
+
+                                <input type="text" [formControl]="chl_type_info.controls['id']"
+                                       name="input1-group1" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row" *ngIf="chl_type_info.controls['id'].hasError('required') && (chl_type_info.controls['id'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small>
+                                <span class="red">类型ID不能为空</span>
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">类型名称
+                                    </span>
+                                <input type="text" [formControl]="chl_type_info.controls['name']"
+                                       name="input1-group1" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row" *ngIf="chl_type_info.controls['name'].hasError('required') && (chl_type_info.controls['name'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small >
+                                <span class="red">类型名称不能为空</span>
+                            </small>
+                        </div>
+                    </div>
+
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary" (click)="addChlType()">确定</button>
+
+                <button type="button" class="btn btn-secondary" (click)="closeModal(pAddTypeModal)">取消</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+
+<div bsModal #wEditTypeModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-warning" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(wEditTypeModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">修改通道类型</h4>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post" class="form-horizontal" [formGroup]="chl_type_info">
+                    <div class="form-group row ">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">类型ID
+                                    </span>
+
+                                <input type="text" [formControl]="chl_type_info.controls['id']"
+                                       readonly   style="background: #f7f7f7;"     name="input1-group1" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row" *ngIf="chl_type_info.controls['id'].hasError('required') && (chl_type_info.controls['id'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small >
+                                <span class="red">类型ID不能为空</span>
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">类型名称
+                                    </span>
+                                <input type="text" [formControl]="chl_type_info.controls['name']"
+                                       name="input1-group1" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row" *ngIf="chl_type_info.controls['name'].hasError('required') && (chl_type_info.controls['name'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small >
+                                <span class="red">类型名称不能为空</span>
+                            </small>
+                        </div>
+                    </div>
+
+
+                </form>
+            </div>
+            <div class="modal-footer">
+
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary" (click)="editChlType()">确定</button>
+
+                <button type="button" class="btn btn-secondary" (click)="closeModal(wEditTypeModal)">取消</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<div bsModal #dDeleteTypeModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-danger" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(dDeleteTypeModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">删除通道类型</h4>
+            </div>
+            <div class="modal-body">
+                <h5>确定删除”{{chl_type_info.controls.id.value}}({{chl_type_info.controls.name.value}})“吗？</h5>
+            </div>
+            <div class="modal-footer">
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary" (click)="removeChlType(chl_type_info.controls.id.value)">确定
+                </button>
+                <button type="button" class="btn btn-secondary" (click)="closeModal(dDeleteTypeModal)">取消</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+
+<!--modal-->

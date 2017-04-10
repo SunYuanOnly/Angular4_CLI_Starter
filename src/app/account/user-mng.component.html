@@ -1,0 +1,599 @@
+<div class="col-md-12 col-lg-12 col-xl-12" style="padding-left:0;">
+    <div class="card" style="width:100%;">
+        <div class="card-header" style="padding:8px 12px 8px 12px;">
+            <div class="input-group">
+                <div class="input-group">
+                    <div class="bbs_title">
+                        <span style="float:left;margin:10px -10px 0 10px;">域：</span>
+                        <a href="javascript:;">
+                            <div class="bbs_nav2">
+                                <ul class="js_newpulldad">
+
+                                    <li class="bbs_productSort js_newpulldown">
+                                        <div class="js_hover_proSort " [ngClass]="domain_border" (click)="showDomain()">
+                                            <span class="proSoName" style="overflow: auto">{{domain_name}}</span>
+                                            <!--<input type="text" placeholder=""/>-->
+                                            <i style="display: inline-block;float: right;line-height: 38px;margin-right:5px;"
+                                               class="icon icon-arrow-down"></i>
+                                            &nbsp;&nbsp;
+                                        </div>
+                                        <ul [ngClass]="show_domain" class="js_productSelect" style="overflow: auto">
+                                            <Tree [nodes]="domain_tree" [options]="{ isExpandedField: 'name'}">
+                                                <template #treeNodeTemplate let-node="node" let-index="index">
+
+                                                    <div class="node-content-wrapper"
+                                                         (click)="getDomainInfo(node.data.id,node.data.name)">
+                                                        {{ node.data.name }}
+                                                    </div>
+
+                                                </template>
+                                            </Tree>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+                        </a>
+                    </div>
+                    <label for="user_id" style="margin:10px 10px 0 35px;float: left">用户ID：</label>
+                    <input type="text" id="user_id" name="input1-group2" class="form-control"
+                           placeholder="Search" style="margin-top:3px;width:20%;float: left" [(ngModel)]="serarch_id">
+                    <span class="input-group-btn" style="top:11px;float: left">
+                             <button type="button" class="btn btn-primary" (click)="searchUsers(serarch_id)"><i
+                                     class="fa fa-search"></i></button>
+                    </span>
+                </div>
+                <!--<select style="width:40%;padding-top:5px;" class="form-control selectpicker " id="user_id" required [ngModel]="user_info.controls.id.value"-->
+                <!--name="vendor_name" (change)="select_vendor($event.target.value)">-->
+                <!--<option *ngFor="let user of user_list" [value]="user.id">-->
+                <!--{{user.name}}-->
+                <!--<span *ngIf="user.id">({{user.id}})</span>-->
+
+                <!--</option>-->
+                <!--</select>-->
+                <span class="input-group-btn" style="line-height:1.25;top:4px;padding:0.5rem 0.75rem;">
+                       <button  class="btn  btn-danger" type="button"
+                                (click)="getModalTarget(pAddUserModal)">添加</button>
+                 </span>
+            </div>
+        </div>
+        <div class="card-block" style="height: 450px;overflow-y: auto">
+
+            <table class="table table-striped text-center ">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>名称</th>
+                    <th>手机号</th>
+                    <th>邮箱号</th>
+                    <th>注册时间</th>
+                    <th>活动时间</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let user of user_list | paginate: { itemsPerPage: count, currentPage: page_no, totalItems: total}" class="row">
+                    <td>{{user.id}}</td>
+                    <td>{{user.name}}</td>
+                    <td>{{user.mobile}}</td>
+                    <td>{{user.email}}</td>
+                    <td>{{user.reg_time}}</td>
+                    <td>{{user.act_time}}</td>
+
+                    <td>
+                         <span [ngSwitch]="user.status">
+                                      <span *ngSwitchCase="'0'">锁定</span>
+                                      <span *ngSwitchCase="'1'">正常</span>
+                         </span>
+                    </td>
+                    <td>
+                        <button title="修改" class="btn  btn-info btn-sm" type="button" id="'+{{user.id}}+'"
+                                (click)="openModal(wUserModal, user)"><i class="fa fa-edit"></i></button>
+                        <button title="删除" class="btn  btn-danger  btn-sm" type="button"
+                                (click)="openModal(dDeleteUserModal, user)"><i class="fa fa-trash-o"></i>
+                        </button>
+
+
+                        <button title="重置" class="btn  btn-success  btn-sm" type="button"
+                                (click)="openModal(wResetPasswordModal, user)"><i class="fa fa-refresh"></i>
+                        </button>
+
+                        <button title="设置" class="btn btn-primary  btn-sm" type="button"
+                                (click)="openModal(iSetUserModal, user,'set')"><i class="icon icon-people"></i>
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+               <pagination-controls (pageChange)="getUserList('',user_id,count,page_no=$event)"></pagination-controls>
+        </div>
+        <div class="card-footer">
+        </div>
+    </div>
+</div>
+
+
+<!---------------------------------- modal -------------------------------->
+<div  bsModal #pAddUserModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-primary" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(pAddUserModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">添加用户</h4>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post" class="form-horizontal" #userForm="ngForm" [formGroup]="user_info">
+                    <div class="form-group row ">
+                        <div class="offset-lg-2 col-md-6" style="padding-right:0;">
+                            <div class="input-group">
+                                    <span class="input-group-addon">用户ID
+                                    </span>
+
+                                <input type="text" [formControl]="user_info.controls['id']"
+                                       name="input1-group1" class="form-control" placeholder="" >
+                            </div>
+                        </div>
+                        <div class="col-md-4" style="padding-left:0;">
+                            <div class="input-group">
+                                <button type="button" [disabled]='' class="btn btn-primary" (click)="setUserRole(iSetRoleIdModal)">分配角色</button>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row" *ngIf="user_info.controls['id'].hasError('required') && (user_info.controls['id'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                                <small >
+                                    <span class="red">用户id不能为空</span>
+                                </small>
+                        </div>
+                    </div>
+                    <div class="form-group row ">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">用户名称
+                                    </span>
+
+                                <input type="text" [formControl]="user_info.controls['name']"
+                                       name="input1-group1" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row" *ngIf="user_info.controls['name'].hasError('required') && (user_info.controls['name'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small >
+                                <span class="red">用户名不能为空</span>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">手机号
+                                    </span>
+                                <input type="text" [formControl]="user_info.controls['mobile']"
+                                       name="input1-group1" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row" *ngIf="user_info.controls['mobile'].hasError('pattern') && (user_info.controls['mobile'].dirty)">
+                        <div class="offset-lg-2 col-md-8">
+                                <small >
+                                    <span class="red">手机号格式不正确</span>
+                                </small>
+
+                        </div>
+                    </div>
+                    <div class="form-group row ">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">邮箱号
+                                    </span>
+                                <input type="text" [formControl]="user_info.controls['email']"
+                                       name="input1-group1" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row" *ngIf="user_info.controls['email'].hasError('pattern') && (user_info.controls['email'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small >
+                                <span class="red">邮箱格式不正确</span>
+                            </small>
+
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon" >状态
+                                    </span>
+                                <select  style="padding-top:5px;" class="form-control selectpicker " required  name="application_name"  [formControl]="user_info.controls['status']">
+                                    <option  value="0">
+                                        锁定
+                                    </option>
+                                    <option  value="1">
+                                        正常
+                                    </option>
+                                </select>
+                                <!--<input value="'+{{application_info.controls['status']}}+'" type="text" [formControl]="application_info.controls['status']"-->
+                                <!--name=" input1-group1" class="form-control" placeholder="">-->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row"  *ngIf="user_info.controls['status'].hasError('required') && (user_info.controls['status'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small>
+                                <span class="red">状态不能为空</span>
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row ">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">密码
+                                    </span>
+
+                                <input type="password"  [formControl]="user_info.controls['pwd']"
+                                       validateEqual="rpwd" reverse="true"     name="input1-group1" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row ">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">确认密码
+                                    </span>
+
+                                <input type="password"  [formControl]="user_info.controls['rpwd']"
+                                       validateEqual="pwd"  name="input1-group1" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row"  *ngIf="!user_info.controls['rpwd'].valid && (user_info.controls['rpwd'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small>
+                                <span class="red">两次密码不一致</span>
+                            </small>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary"  (click)="addUser()">确定</button>
+
+                <button type="button" class="btn btn-secondary" (click)="closeModal(pAddUserModal)">取消</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<div bsModal #wUserModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-warning" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(wUserModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">修改用户</h4>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post" class="form-horizontal" [formGroup]="user_info">
+                    <div class="form-group row ">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">用户ID
+                                    </span>
+
+                                <input type="text"  [formControl]="user_info.controls['id']" readonly
+                                       style="background: #f7f7f7;" name="input1-group1" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row" *ngIf="user_info.controls['id'].hasError('required') && (user_info.controls['id'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small >
+                                <span class="red">用户ID不能为空</span>
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row ">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">用户名称
+                                    </span>
+
+                                <input type="text" [formControl]="user_info.controls['name']"
+                                       name="input1-group1" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row" *ngIf="user_info.controls['name'].hasError('required') && (user_info.controls['name'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small >
+                                <span class="red">用户名不能为空</span>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-group row ">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">手机号
+                                    </span>
+
+                                <input type="text" [formControl]="user_info.controls['mobile']"
+                                       onkeyup="(this.v=function(){this.value=this.value.replace(/[^0-9-]+/,'');}).call(this)" onblur="this.v();"    name="input1-group1" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row" *ngIf="user_info.controls['mobile'].hasError('required') && (user_info.controls['mobile'].dirty)">
+                        <div class="offset-lg-2 col-md-8">
+                            <small >
+                                <span class="red">手机号格式不正确</span>
+                            </small>
+
+                        </div>
+                    </div>
+                    <div class="form-group row ">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">邮箱号
+                                    </span>
+
+                                <input type="text" [formControl]="user_info.controls['email']"
+                                       name="input1-group1" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row" *ngIf="user_info.controls['email'].hasError('required') && (user_info.controls['email'].dirty )">
+                        <div class="offset-lg-2 col-md-8">
+                            <small >
+                                <span class="red">邮箱格式不正确</span>
+                            </small>
+
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">状态
+                                    </span>
+                                <select  style="padding-top:5px;" class="form-control selectpicker " required  name="application_name"  [formControl]="user_info.controls['status']">
+                                    <option  value="0">
+                                        锁定
+                                    </option>
+                                    <option  value="1">
+                                        正常
+                                    </option>
+                                </select>
+                                <!--<input value="'+{{application_info.controls['status']}}+'" type="text" [formControl]="application_info.controls['status']"-->
+                                <!--name=" input1-group1" class="form-control" placeholder="">-->
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary" (click)="editUser()">确定</button>
+
+                <button type="button" class="btn btn-secondary" (click)="closeModal(wUserModal)">取消</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<div bsModal #dDeleteUserModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-danger" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(dDeleteUserModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">删除用户</h4>
+            </div>
+            <div class="modal-body">
+                <h5>确定删除”{{user_info.controls.id.value}}({{user_info.controls.name.value}})吗？</h5>
+            </div>
+            <div class="modal-footer">
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary" (click)="removeUser(user_info.controls.id.value)">确定</button>
+                <button type="button" class="btn btn-secondary" (click)="closeModal(dDeleteUserModal)">取消</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<div  bsModal #wResetPasswordModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-danger" role="document" >
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(wResetPasswordModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">重置密码</h4>
+            </div>
+            <div class="modal-body">
+
+                <form action="" method="post" class="form-horizontal" [formGroup]="user_info">
+                    <div class="form-group row ">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">输入密码
+                                    </span>
+
+                                <input type="password" [formControl]="user_info.controls['pwd']"
+                                       name="input1-group1" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group row ">
+                        <div class="offset-lg-2 col-md-8">
+                            <div class="input-group">
+                                    <span class="input-group-addon">再次输入
+                                    </span>
+
+                                <input type="password"   [formControl]="user_info.controls['rpwd']"
+                                       name="input1-group1" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary" (click)="resetPassword(user_info.controls.id.value)">确定</button>
+                <button type="button" class="btn btn-secondary" (click)="closeModal(wResetPasswordModal)">取消</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<div bsModal #iSetUserModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-info" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(iSetUserModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">分配角色</h4>
+            </div>
+            <div class="modal-body" style="height: 250px;overflow-y: auto">
+                <div class="row">
+                    <!--<div class="col-md-4" style="border-right: 1px solid #cccccc;">-->
+                        <!--<Tree [nodes]="domain_tree" [options]="{ isExpandedField: 'name'}">-->
+                            <!--<template #treeNodeTemplate let-node="node" let-index="index">-->
+                                <!--<div class="node-content-wrapper" (click)="getRoleListByUserId(node.data.id)" >-->
+                                    <!--{{ node.data.name }}-->
+                                <!--</div>-->
+                            <!--</template>-->
+                        <!--</Tree>-->
+                    <!--</div>-->
+                    <div class="col-md-12">
+
+                        <table class="table table-striped text-center ">
+                            <thead>
+                            <tr>
+                                <th style="width:30%;">x</th>
+                                <th style="width:30%;">角色ID</th>
+                                <th style="width:40%;">角色名称</th>
+
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr *ngFor="let role of role_list" class="row">
+                                <td>
+                                    <input type="checkbox" [(ngModel)]="role.enabled"
+                                           (ngModelChange)="changeFuncs(role.id,role.enabled)"/>
+
+                                </td>
+                                <td>{{role.id}}</td>
+                                <td>{{role.name}}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary" (click)="setUserRoleFuncs()">保存</button>
+                <button type="button" class="btn btn-secondary" (click)="closeModal(iSetUserModal)">取消</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<div bsModal #iSetRoleIdModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-info" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeModal(iSetRoleIdModal)" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">分配角色</h4>
+            </div>
+            <div class="modal-body" style="height: 250px;overflow-y: auto">
+                <div class="row">
+                    <!--<div class="col-md-4" style="border-right: 1px solid #cccccc;">-->
+
+                        <!--<Tree [nodes]="domain_tree" [options]="{ isExpandedField: 'name'}">-->
+
+
+                            <!--<template #treeNodeTemplate let-node="node" let-index="index">-->
+
+                                <!--<div class="node-content-wrapper" (click)="getRoleListByUserId(node.data.id)" >-->
+                                    <!--{{ node.data.name }}-->
+                                <!--</div>-->
+
+                            <!--</template>-->
+                        <!--</Tree>-->
+
+                    <!--</div>-->
+                    <div class="col-md-12">
+
+                        <table class="table table-striped text-center ">
+                            <thead>
+                            <tr>
+                                <th style="width:30%;">x</th>
+                                <th style="width:30%;">角色ID</th>
+                                <th style="width:40%;">角色名称</th>
+
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr *ngFor="let role of role_list" class="row">
+                                <td>
+                                    <input type="checkbox" #role_checkbox   [(ngModel)]="role.enabled"
+                                           (change)="changeFuncs(role.id,role_checkbox.checked)"/>
+
+                                </td>
+                                <td>{{role.id}}</td>
+                                <td>{{role.name}}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <span class="pull-left error" [ngClass]="{'display': msgShow}">&nbsp;&nbsp;{{globelMsg}}</span>
+
+                <button type="button" class="btn btn-primary" (click)="setRoleId(iSetRoleIdModal)">保存</button>
+                <button type="button" class="btn btn-secondary" (click)="closeModal(iSetRoleIdModal)">取消</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+
+<!--/modal-->
